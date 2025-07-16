@@ -11,7 +11,8 @@ import PerfilScreen from './PerfilScreen';
 
 const Tab = createBottomTabNavigator();
 
-export default function MainTabs() {
+export default function MainTabs({route}) {
+   const { user } = route.params || {}; 
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({

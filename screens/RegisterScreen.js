@@ -1,4 +1,4 @@
-// src/screens/RegisterScreen.js
+
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity,
@@ -10,14 +10,45 @@ export default function RegisterScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     if (!nome || !email || !senha) {
       Alert.alert('Atenção', 'Preencha todos os campos!');
       return;
     }
 
+
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password: senha,
+    });
+
+    if (error) {
+      Alert.alert('Erro ao cadastrar', error.message);
+      return;
+    }
+
+    const user = data.user;
+    if (user) {
+      const { error: insertError } = await supabase
+        .from('usuarios')
+        .insert([
+          {
+            id: user.id, 
+            nome,
+            email,
+          },
+        ]);
+
+      if (insertError) {
+        Alert.alert('Erro ao salvar nome', insertError.message);
+        return;
+      }
+    }
+
+    Alert.alert('Cadastro concluído', 'Bem-vindo(a)!');
     navigation.replace('MainTabs');
   };
+
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>

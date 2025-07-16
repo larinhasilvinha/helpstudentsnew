@@ -1,22 +1,44 @@
-// src/screens/LoginScreen.js
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity,
   StyleSheet, Image, Alert, KeyboardAvoidingView, Platform
 } from 'react-native';
+import { supabase } from './services/supabase';
 
 export default function LoginScreen({ navigation }) {
   const [nome, setNome] = useState('');
   const [senha, setSenha] = useState('');
 
-  const handleLogin = () => {
-    if (!nome || !senha) {
-      Alert.alert('Erro de login', 'Preencha nome e senha!');
+  const handleLogin = async () => {
+  if (!nome || !senha) {
+    Alert.alert('Erro de login', 'Preencha nome e senha!');
+    return;
+  }
+
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: nome,
+    password: senha,
+  });
+
+  if (error) {
+    Alert.alert('Erro de login', error.message);
+  } else {
+    // Pega os dados do usuário
+    const { data: userData, error: userError } = await supabase
+      .from('usuarios') // Nome da sua tabela
+      .select('*')
+      .eq('email', nome)
+      .single();
+
+    if (userError) {
+      Alert.alert('Erro ao buscar dados', userError.message);
       return;
     }
 
-    navigation.replace('Main');
-  };
+    // Passa os dados do usuário pra MainTabs
+    navigation.replace('MainTabs', { user: userData });
+  }
+};
 
   return (
     <KeyboardAvoidingView
@@ -26,12 +48,14 @@ export default function LoginScreen({ navigation }) {
       <Image source={require('../assets/logo.png')} style={styles.logo} />
       <Text style={styles.title}>LOGIN</Text>
 
-      <Text>Nome</Text>
+      <Text>Email</Text>
       <TextInput
         style={styles.input}
-        placeholder="Digite seu nome"
+        placeholder="Digite seu email"
         value={nome}
         onChangeText={setNome}
+        keyboardType="email-address"
+        autoCapitalize="none"
       />
 
       <Text>Senha</Text>

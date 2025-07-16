@@ -8,7 +8,8 @@ import RegisterScreen from './screens/RegisterScreen';
 import PerfilScreen from './screens/PerfilScreen';
 import NotificationScreen from './screens/NotificationScreen';
 import MainTabs from './screens/TabRouter';
-import DisciplinaDetalheScreen from './screens/DisciplinaDetalheScreen'
+import DisciplinaDetalheScreen from './screens/DisciplinaDetalheScreen';
+
 
 
 

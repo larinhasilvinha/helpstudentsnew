@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import { supabase } from './services/supabase'; 
 
 export default function PerfilScreen() {
   const [nome, setNome] = useState('');
@@ -41,8 +42,31 @@ export default function PerfilScreen() {
     }
   };
 
-  const salvarPerfil = () => {
-    Alert.alert('Perfil Salvo', 'Suas informações foram atualizadas com sucesso!');
+  const salvarPerfil = async () => {
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      Alert.alert('Erro', 'Usuário não autenticado!');
+      return;
+    }
+
+    const { error } = await supabase
+      .from('usuarios')
+      .upsert({
+        id: user.id,
+        nome,
+        email,
+        tipo,
+        disciplinas,
+        comentario,
+        foto_url: fotoPerfil,
+      });
+
+    if (error) {
+      Alert.alert('Erro ao salvar', error.message);
+    } else {
+      Alert.alert('Perfil Salvo', 'Suas informações foram atualizadas com sucesso!');
+    }
   };
 
   return (
@@ -67,9 +91,8 @@ export default function PerfilScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Formulário */}
+    
       <ScrollView showsVerticalScrollIndicator={false}>
-
         <Text style={styles.label}>Nome</Text>
         <TextInput
           style={styles.input}
@@ -141,121 +164,121 @@ export default function PerfilScreen() {
     </View>
   );
 }
+
 const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: '#E0F2FE',
-      paddingTop: 50,
-      paddingHorizontal: 20,
-    },
-    header: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: 15,
-    },
-    title: {
-      fontSize: 22,
-      fontWeight: 'bold',
-      color: '#004080',
-    },
-    fotoContainer: {
-      alignItems: 'center',
-      marginBottom: 20,
-    },
-    fotoPerfil: {
-      width: 120,
-      height: 120,
-      borderRadius: 60,
-      borderWidth: 2,
-      borderColor: '#004080',
-    },
-    fotoPlaceholder: {
-      width: 120,
-      height: 120,
-      borderRadius: 60,
-      backgroundColor: '#fff',
-      borderWidth: 2,
-      borderColor: '#ccc',
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    label: {
-      marginTop: 15,
-      fontSize: 16,
-      color: '#004080',
-      fontWeight: 'bold',
-    },
-    input: {
-      backgroundColor: '#fff',
-      borderRadius: 10,
-      paddingHorizontal: 12,
-      paddingVertical: 8,
-      marginTop: 5,
-    },
-    tipoBox: {
-      flexDirection: 'row',
-      gap: 10,
-      marginTop: 10,
-    },
-    tipoBtn: {
-      flex: 1,
-      paddingVertical: 10,
-      borderWidth: 1,
-      borderColor: '#004080',
-      borderRadius: 10,
-      alignItems: 'center',
-    },
-    tipoSelecionado: {
-      backgroundColor: '#004080',
-    },
-    tipoText: (ativo) => ({
-      color: ativo ? '#fff' : '#004080',
-      fontWeight: '600',
-    }),
-    disciplinasBox: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      gap: 10,
-      marginTop: 10,
-    },
-    disciplinaTag: {
-      borderWidth: 1,
-      borderColor: '#004080',
-      borderRadius: 20,
-      paddingHorizontal: 15,
-      paddingVertical: 5,
-    },
-    disciplinaAtiva: {
-      backgroundColor: '#004080',
-    },
-    addTag: {
-      borderWidth: 1,
-      borderColor: '#004080',
-      borderRadius: 20,
-      paddingHorizontal: 15,
-      paddingVertical: 5,
-      backgroundColor: '#fff',
-    },
-    bioInput: {
-      backgroundColor: '#fff',
-      borderRadius: 10,
-      padding: 12,
-      marginTop: 8,
-      minHeight: 100,
-      textAlignVertical: 'top',
-    },
-    saveButton: {
-      backgroundColor: '#004080',
-      paddingVertical: 12,
-      borderRadius: 10,
-      alignItems: 'center',
-      marginVertical: 30,
-    },
-    saveButtonText: {
-      color: '#fff',
-      fontWeight: 'bold',
-      fontSize: 16,
-    },
-  });
-  
+  container: {
+    flex: 1,
+    backgroundColor: '#E0F2FE',
+    paddingTop: 50,
+    paddingHorizontal: 20,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#004080',
+  },
+  fotoContainer: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  fotoPerfil: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    borderWidth: 2,
+    borderColor: '#004080',
+  },
+  fotoPlaceholder: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: '#fff',
+    borderWidth: 2,
+    borderColor: '#ccc',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  label: {
+    marginTop: 15,
+    fontSize: 16,
+    color: '#004080',
+    fontWeight: 'bold',
+  },
+  input: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginTop: 5,
+  },
+  tipoBox: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 10,
+  },
+  tipoBtn: {
+    flex: 1,
+    paddingVertical: 10,
+    borderWidth: 1,
+    borderColor: '#004080',
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  tipoSelecionado: {
+    backgroundColor: '#004080',
+  },
+  tipoText: (ativo) => ({
+    color: ativo ? '#fff' : '#004080',
+    fontWeight: '600',
+  }),
+  disciplinasBox: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+    marginTop: 10,
+  },
+  disciplinaTag: {
+    borderWidth: 1,
+    borderColor: '#004080',
+    borderRadius: 20,
+    paddingHorizontal: 15,
+    paddingVertical: 5,
+  },
+  disciplinaAtiva: {
+    backgroundColor: '#004080',
+  },
+  addTag: {
+    borderWidth: 1,
+    borderColor: '#004080',
+    borderRadius: 20,
+    paddingHorizontal: 15,
+    paddingVertical: 5,
+    backgroundColor: '#fff',
+  },
+  bioInput: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 12,
+    marginTop: 8,
+    minHeight: 100,
+    textAlignVertical: 'top',
+  },
+  saveButton: {
+    backgroundColor: '#004080',
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginVertical: 30,
+  },
+  saveButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+});

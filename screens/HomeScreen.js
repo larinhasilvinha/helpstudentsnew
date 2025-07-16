@@ -31,7 +31,7 @@ const monitors = [
   { name: 'Monitor Física', rating: 4.8, image: require('../assets/monitor2.png') },
 ];
 
-export default function HomeScreen() {
+export default function HomeScreen({user}) {
   const navigation = useNavigation();
 
   return (
